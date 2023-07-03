@@ -44,3 +44,15 @@ const rest = new REST().setToken(token);
 		console.error(error);
 	}
 })();
+
+//Deleting specific commands & All commands
+// for global commands
+/*
+rest.delete(Routes.applicationCommand(clientId, 'commandId'))
+	.then(() => console.log('Successfully deleted application command'))
+	.catch(console.error);
+// for all commands
+rest.put(Routes.applicationCommands(clientId), { body: [] })
+	.then(() => console.log('Successfully deleted all application commands.'))
+	.catch(console.error);
+*/
