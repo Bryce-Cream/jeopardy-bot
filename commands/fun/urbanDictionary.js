@@ -1,35 +1,50 @@
-const {SlashCommandBuilder, MessageEmbed} = require("discord.js");
-const axios = require('axios');
+const { SlashCommandBuilder, EmbedBuilder } = require('discord.js');
+const { request } = require('undici');
 
 module.exports = {
     data: new SlashCommandBuilder()
-        .setName("urban")
-        .setDescription("Returns the defintion of a term on Urban Dictionary"),
+        .setName('urban')
+        .setDescription('Returns the definition of a term on Urban Dictionary')
+        .addStringOption(option =>
+            option
+                .setName('term')
+                .setDescription('The term you want to look up.')
+                .setRequired(true)
+        ),
+    async execute(interaction) {
+        await interaction.deferReply();
 
-    async execute(message, args)
-    {
-        let query = args.join(" ");
-        if(!query)
-            return message.reply('Please specificy a word to search for!');
+        const randomColor = Math.floor(Math.random() * 16777215).toString(16);
+        const term = interaction.options.getString('term');
 
-        query = encodeURIComponent(query);
+        if (!term) {
+            return interaction.editReply('Please provide a term to look up.');
+        }
 
-        const {data: {list}} = await axios.get(`https://api.urbandictionary.com/v0/define?term=${query}`);
+        const query = new URLSearchParams({ term });
+
+        const dictResult = await request(`https://api.urbandictionary.com/v0/define?${query}`);
+        const { list } = await dictResult.body.json();
+
+        if (!list.length) {
+            return interaction.editReply(`No results found for **${term}**.`);
+        }
 
         const [answer] = list;
 
-        message.channel.send(
-            new MessageEmbed()
-                .setTitle(answer.word)
-                .setURL(answer.permalink)
-                .setColor('RANDOM')
-                .addField("Definition:", trim(answer.definition))
-                .addField("Example:", trim(answer.example))
-        )
-    }
-}
+        const embed = new EmbedBuilder()
+            .setColor(`#${randomColor}`)
+            .setTitle(answer.word)
+            .setURL(answer.permalink)
+            .addFields(
+                { name: 'Definition', value: trim(answer.definition, 1024) },
+                { name: 'Example', value: trim(answer.example, 1024) },
+            );
 
-function trim(input)
-{
-    return input.length > 1024 ? `${input.slice(0,1020)}... ` : input;
-}
+        interaction.editReply({ embeds: [embed] });
+    }
+};
+
+const trim = (str, max) => {
+    return str.length > max ? `${str.slice(0, max - 3)}...` : str;
+};
