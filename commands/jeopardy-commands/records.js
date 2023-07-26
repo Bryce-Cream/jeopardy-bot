@@ -21,7 +21,7 @@ module.exports = {
         if(recordType === 'singleGame')
         {
             const embed = new EmbedBuilder()
-                .setTitle('Singe Game Records')
+                .setTitle('Single Game Records')
                 .setColor(`#${randomColor}`)
                 .addFields(
                     {name: 'Highest Score', value: '1. Noah 28,796 (E8)\n2. Nich 21,600 (E8)\n3. Daniel 19,599 (E7)\n4. Jansy 18,800 (E6)\n5. Noah 18,400 (E6)'},
