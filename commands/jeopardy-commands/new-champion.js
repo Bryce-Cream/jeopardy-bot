@@ -31,8 +31,7 @@ module.exports = {
             {name: 'Successful Defenses', value: '0', inline: true},
             { name: '\u200B', value: '\u200B', inline: true },
             {name: 'Reign Number', value: reign_number, inline: true},
-        )
-        .setImage(user.displayAvatarURL());
+        );
 
       // Send the message to the channel
       interaction.channel.send({embeds: [championEmbed]});
