@@ -25,7 +25,8 @@ module.exports = {
   ,
   async execute(interaction) 
   {
-    const subcommand = interaction.option.getSubcommand();
+    const subcommand = interaction.options.getSubcommand();
+    const channel = client.channels.cache.get('912246307010281512');
 
     if(subcommand === 'new-champion')
     {
@@ -43,19 +44,19 @@ module.exports = {
           .addFields(
               {name: 'Total Winnings', value: `${winnings}$`},
               {name: 'Date Won', value: date_won, inline:true},
-              { name: '\u200B', value: '\u200B', inline: true },
+              {name: '\u200B', value: '\u200B', inline: true },
               {name: 'Days as Champion', value: '374 Days', inline: true},
               {name: 'Defenses', value: '0', inline: true},
-              { name: '\u200B', value: '\u200B', inline: true },
+              {name: '\u200B', value: '\u200B', inline: true },
               {name: 'Reign Number', value: reign_number, inline: true},
           );
   
         // Send the message to the channel
-        interaction.channel.send({embeds: [championEmbed]});
+        await interaction.channel.send({embeds: [championEmbed]});
     }
     else if(subcommand === 'champion-retention')
     {
-
+        console.log("test");
     }
   },
 };
