@@ -1,5 +1,5 @@
-const { SlashCommandBuilder} = require('discord.js');
-const fs = require('fs');
+const { SlashCommandBuilder } = require('discord.js');
+const fs = require('fs').promises; // Use promises version of fs for async/await
 
 module.exports = {
   data: new SlashCommandBuilder()
@@ -12,22 +12,18 @@ module.exports = {
         .setRequired(true)
     ),
   async execute(interaction) {
-    // Read the content of the test.txt file
-    fs.readFile('champion.txt', 'utf8', (err, fileContent) => {
-      if (err) {
-        console.error('Error reading file:', err);
-        interaction.reply('Failed to read the file.');
-        return;
-      }
-
-      const user = interaction.options.getUser('user');
-
+    try {
+      // Read the content of the champion.txt file
+      const fileContent = await fs.readFile('champion.txt', 'utf8');
+      
       // Construct the message content with the file content and user's avatar URL
       const messageContent = `**File Content:**\n${fileContent}\n\n`;
 
       // Send the message to the channel
-      interaction.channel.send(messageContent, {files: [user.displayAvatarURL()]});
-
-    });
+      await interaction.reply(messageContent);
+    } catch (error) {
+      console.error('Error reading file:', error);
+      await interaction.reply('Failed to read the file.');
+    }
   },
 };
