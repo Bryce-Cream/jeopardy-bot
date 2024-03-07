@@ -21,7 +21,9 @@ module.exports = {
 
       // Send the message to the channel
       await interaction.reply(messageContent);
-    } catch (error) {
+    } 
+    catch (error) 
+    {
       console.error('Error reading file:', error);
       await interaction.reply('Failed to read the file.');
     }
