@@ -19,8 +19,7 @@ module.exports = {
       subcommand
       .setName('champion-retention')
       .setDescription('Updates the current champions stats.')
-      .addStringOption(option => option.setName('winnings').setDescription('The amount of money they just won').setRequired(true))
-      .addStringOption(option => option.setName('defenses').setDescription('Amount of defenses').setRequired(true))
+      .addIntegerOption(option => option.setName('winnings').setDescription('The amount of money they just won').setRequired(true))
     )
   ,
   async execute(interaction) 
@@ -51,19 +50,10 @@ module.exports = {
         const messageId = championData.message_ID;
 
         // Retrieve the channel object for the target channel
-        const targetChannelId = '912246307010281512'; // bot command channel for testing
+        const targetChannelId = '854441460404715550'; // bot command channel for testing
         const targetChannel = interaction.client.channels.cache.get(targetChannelId);
         const oldChampionMessage = await targetChannel.messages.fetch(messageId);
         const oldChampionEmbed = oldChampionMessage.embeds[0];
-
-        //Not needed I don't think anymore
-        // for (const field of receivedEmbed.fields) 
-        // {
-        //   if (field.name.toLowerCase() === 'Days as Champion') 
-        //   {
-        //     field.value += ' - ';
-        //   } 
-        // }
 
         //"update" the old embed
         const updatedOldChampionEmbd = EmbedBuilder.from(oldChampionEmbed).setTitle("FORMER JEOPARDY CHAMPION");
@@ -124,11 +114,49 @@ module.exports = {
 
         console.log("Command has executed succesfully!");
         await interaction.reply({ content: 'New Champion has been created', ephemeral: true });
+      
       }//End of New-Champ Command
       
       else if(subcommand === 'champion-retention')
       {
-          console.log("test");
+        //parameters from command
+        const winnings = interaction.options.getInteger('winnings');
+        const filePath = './champion.json';
+        const championData = JSON.parse(fs.readFileSync(filePath, 'utf8'));
+        const messageId = championData.message_ID;
+
+        // Retrieve the channel object for the target channel
+        const targetChannelId = '854441460404715550'; // bot command channel for testing
+        const targetChannel = interaction.client.channels.cache.get(targetChannelId);
+        const currentChampionMessage = await targetChannel.messages.fetch(messageId);
+        const currentChampionEmbed = currentChampionMessage.embeds[0];
+
+        //Updating file
+        championData.total_winnings +=  winnings;
+        championData.defenses += 1;
+
+        //Write it to the file
+        const updatedChampionContent = JSON.stringify(championData, null, 2);
+        fs.writeFileSync(filePath, updatedChampionContent, 'utf-8');
+
+        //Probably just best to move from file to here.
+        for (const field of currentChampionEmbed.fields) 
+        {
+          if (field.name.toLowerCase() === 'defenses') 
+          {
+            field.value = championData.defenses;
+          }
+          else if (field.name.toLowerCase() === 'total winnings') 
+          {
+            field.value = `${championData.total_winnings.toLocaleString()}$`;
+          }  
+        }
+
+        await currentChampionMessage.edit({ embeds: [currentChampionEmbed] });
+        console.log("Champion Updated...");
+        console.log("Command has executed succesfully!");
+        await interaction.reply({ content: 'Champion has been updated', ephemeral: true });
+
       }
       
     }
