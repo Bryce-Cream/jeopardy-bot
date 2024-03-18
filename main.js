@@ -31,6 +31,34 @@ for (const folder of commandFolders)
 // We use 'c' for the event parameter to keep it separate from the already defined 'client'
 client.once(Events.ClientReady, c => {
 	console.log(`Ready! Logged in as ${c.user.tag}`);
+
+	//Editing code task
+	const filePath = './champion.json';
+	const championData = JSON.parse(fs.readFileSync(filePath, 'utf8'));
+	const messageId = championData.message_ID;
+	const date_won = championData.date_won;
+	//auto days as champ calculator
+	const dateWon = new Date(date_won);
+	const currentDate = new Date();
+	const timeDifferenceMs = currentDate.getTime() - dateWon.getTime();
+	const daysAsChampion = Math.floor(timeDifferenceMs/(1000*60*60*24));
+
+    // Retrieve the channel object for the target channel
+    const targetChannelId = '854441460404715550'; // Current-champion channel
+    const targetChannel = client.channels.cache.get(targetChannelId);
+    targetChannel.messages.fetch(messageId)
+		.then(currentChampionMessage => {
+			for (const field of currentChampionMessage.embeds[0].fields) 
+			{
+			     if (field.name.toLowerCase() === 'days as champion') 
+			     {
+			     	field.value = `${daysAsChampion} Days`;
+			     } 
+			}
+
+			currentChampionMessage.edit({ embeds: [currentChampionMessage.embeds[0]] });
+		});
+	console.log("Task executed...");
 });
 // Log in to Discord with your client's token
 client.login(token);
