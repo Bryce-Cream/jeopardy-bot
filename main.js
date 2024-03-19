@@ -58,7 +58,7 @@ client.once(Events.ClientReady, c => {
 
 			currentChampionMessage.edit({ embeds: [currentChampionMessage.embeds[0]] });
 		});
-	console.log("Task executed...");
+	console.log("Days as Champion updated!");
 });
 // Log in to Discord with your client's token
 client.login(token);
