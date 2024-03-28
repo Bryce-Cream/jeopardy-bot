@@ -1,10 +1,23 @@
 const fs = require('node:fs');
 const path = require('node:path');
 const { Client, Collection, Events, GatewayIntentBits } = require('discord.js');
-const { token } = require('./config.json');
+const { token, guildId, myID } = require('./config.json');
+const express = require('express');
+const cors = require('cors');
+const app = express();
+const port = 3000;
+const { connect } = require('node:http2');
+let voiceConnection;
+const { VoiceConnection, joinVoiceChannel, createAudioPlayer, createAudioResource } = require('@discordjs/voice');
+
+//Middleware to enable CORS
+app.use(cors());
+
+// Middleware to parse JSON bodies
+app.use(express.json());
 
 // Create a new client instance
-const client = new Client({ intents: [GatewayIntentBits.Guilds] });
+const client = new Client({ intents: [GatewayIntentBits.Guilds, GatewayIntentBits.GuildMessages, GatewayIntentBits.MessageContent, GatewayIntentBits.GuildMembers, GatewayIntentBits.GuildVoiceStates] });
 
 client.commands = new Collection();
 
@@ -58,11 +71,72 @@ client.once(Events.ClientReady, c => {
 
 			currentChampionMessage.edit({ embeds: [currentChampionMessage.embeds[0]] });
 		});
+
+	const guild = client.guilds.cache.get(guildId);
+	guild.members.fetch(myID)
+		.then(member => {
+			voiceConnection = joinVoiceChannel({
+				channelId: member.voice.channel.id,
+				guildId: guildId,
+				adapterCreator: guild.voiceAdapterCreator,
+				selfDeaf: false,
+			});
+	});
+
 	console.log("Days as Champion updated!");
+
 });
+
 // Log in to Discord with your client's token
 client.login(token);
 
+
+// Route to receive data from Chrome Extension
+app.post('/data', (req, res) => {
+    const data = req.body;
+
+	// Emit an event to Discord bot
+    client.emit('dailyDouble', data);
+
+    res.sendStatus(200);
+});
+
+// Start the server
+app.listen(port, () => {
+    console.log(`Intermediary service listening at http://localhost:${port}`);
+});
+
+
+client.on('dailyDouble', data =>
+{
+	const soundPath = path.join(__dirname, 'sounds', 'conway_twitty.mp3');
+	// Check if the sound file exists
+	if (!fs.existsSync(soundPath)) 
+	{
+		console.log('The specified sound file does not exist!');
+		return;
+	}
+	else
+		console.log("This sound path does exist");
+
+	const guild = client.guilds.cache.get(guildId);
+	const member = guild.members.fetch(myID)
+		.then(member => {
+			// const connection = new VoiceConnection({
+			// 	channelId: member.voice.channel.id,
+			// 	guildId: guildId,
+			// 	adapterCreator: guild.voiceAdapterCreator
+			// });
+
+		const player = createAudioPlayer();
+		const resource = createAudioResource(soundPath, {inlineVolume: true});
+		resource.volume.setVolume(0.5);
+
+		player.play(resource);
+		
+		voiceConnection.subscribe(player);
+	});
+});
 
 client.on(Events.InteractionCreate, async interaction => 
 {
