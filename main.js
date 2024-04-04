@@ -73,15 +73,15 @@ client.once(Events.ClientReady, c => {
 		});
 
 	const guild = client.guilds.cache.get(guildId);
-	// guild.members.fetch(myID)
-	// 	.then(member => {
-	// 		voiceConnection = joinVoiceChannel({
-	// 			channelId: member.voice.channel.id,
-	// 			guildId: guildId,
-	// 			adapterCreator: guild.voiceAdapterCreator,
-	// 			selfDeaf: false,
-	// 		});
-	// });
+	guild.members.fetch(myID)
+		.then(member => {
+			voiceConnection = joinVoiceChannel({
+				channelId: member.voice.channel.id,
+				guildId: guildId,
+				adapterCreator: guild.voiceAdapterCreator,
+				selfDeaf: false,
+			});
+	});
 
 	console.log("Days as Champion updated!");
 

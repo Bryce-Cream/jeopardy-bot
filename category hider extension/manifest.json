@@ -2,7 +2,7 @@
     "manifest_version": 3,
     "name": "Jeopardy Category Hider",
     "version": "1.0",
-    "description": "Logs a message to the console when a click occurs on a webpage.",
+    "description": "Hiding Categories on Jeopardy Labs",
     "permissions": ["activeTab"],
     "content_scripts": [
         {
