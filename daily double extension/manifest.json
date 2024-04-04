@@ -1,6 +1,6 @@
 {
     "manifest_version": 3,
-    "name": "Jeopardy Click Listener",
+    "name": "Jeopardy Daily Double Listener",
     "version": "2.0",
     "description": "Logs a message to the console when a click occurs on a webpage.",
     "permissions": ["activeTab"],

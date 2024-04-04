@@ -1,7 +1,7 @@
 {
     "manifest_version": 3,
-    "name": "Jeopardy Click Listener",
-    "version": "2.0",
+    "name": "Jeopardy Category Hider",
+    "version": "1.0",
     "description": "Logs a message to the console when a click occurs on a webpage.",
     "permissions": ["activeTab"],
     "content_scripts": [
