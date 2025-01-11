@@ -18,7 +18,7 @@ app.use(express.json());
 
 // Create a new client instance
 const client = new Client({ intents: [GatewayIntentBits.Guilds, GatewayIntentBits.GuildMessages, GatewayIntentBits.MessageContent, GatewayIntentBits.GuildMembers, GatewayIntentBits.GuildVoiceStates] });
-
+var soundNumber = 0;
 client.commands = new Collection();
 
 const foldersPath = path.join(__dirname, 'commands');
@@ -109,32 +109,36 @@ app.listen(port, () => {
 
 client.on('dailyDouble', data =>
 {
-	const soundPath = path.join(__dirname, 'sounds', 'conway_twitty.mp3');
-	// Check if the sound file exists
-	if (!fs.existsSync(soundPath)) 
-	{
-		console.log('The specified sound file does not exist!');
-		return;
-	}
-	else
-		console.log("This sound path does exist");
+	const soundPath = path.join(__dirname, 'sounds');
 
-	const guild = client.guilds.cache.get(guildId);
-	const member = guild.members.fetch(myID)
-		.then(member => {
-			// const connection = new VoiceConnection({
-			// 	channelId: member.voice.channel.id,
-			// 	guildId: guildId,
-			// 	adapterCreator: guild.voiceAdapterCreator
-			// });
+	fs.readdir(soundPath, (err, files) => {
+		if(err)
+		{
+			console.error('Error reading directory:', err);
+			return;
+		}
 
-		const player = createAudioPlayer();
-		const resource = createAudioResource(soundPath, {inlineVolume: true});
-		resource.volume.setVolume(0.5);
+			const firstFile = files[soundNumber];
+			if(soundNumber == 3)
+				soundNumber = 0;
+			else
+				soundNumber++;
+				
+			const filePath = path.join(soundPath, firstFile);
 
-		player.play(resource);
-		
-		voiceConnection.subscribe(player);
+
+			const guild = client.guilds.cache.get(guildId);
+			const member = guild.members.fetch(myID)
+			.then(member => {
+
+			const player = createAudioPlayer();
+			const resource = createAudioResource(filePath, {inlineVolume: true});
+			resource.volume.setVolume(0.75);
+
+			player.play(resource);
+			
+			voiceConnection.subscribe(player);
+		});
 	});
 });
 
